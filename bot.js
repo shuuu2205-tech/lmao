@@ -15,7 +15,7 @@ class MinecraftBot {
     async connect() {
         try {
             this.log('Connecting to Minecraft server...');
-
+            
             const cfg = this.config;
             const host = cfg?.server?.host;
             const port = cfg?.server?.port;
@@ -25,6 +25,11 @@ class MinecraftBot {
                 throw new Error('Missing config: server.host, server.port, bot.username');
             }
 
+            // Add random delay to seem more human
+            const delay = Math.random() * 8000 + 4000; // 4-12 seconds
+            this.log(`Waiting ${Math.round(delay/1000)}s before connecting...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+
             this.bot = mineflayer.createBot({
                 host,
                 port,
@@ -32,7 +37,13 @@ class MinecraftBot {
                 password: cfg?.bot?.password || undefined,
                 auth: cfg?.bot?.auth || 'offline',
                 version: cfg?.server?.version || false,
-                hideErrors: false
+                hideErrors: false,
+                connectTimeout: 30000, // 30 second timeout
+                checkTimeoutInterval: 45*1000,
+                closeTimeout: 90*1000,
+                keepAlive: true,
+                noPingResponse: false,
+                closeOnError: false
             });
 
             this.setupEventListeners();
@@ -79,6 +90,23 @@ class MinecraftBot {
 
         this.bot.on('end', (reason) => {
             this.log(`Bot disconnected. Reason: ${reason || 'unknown'}`);
+            
+            // Exponential backoff retry
+            if (!this.retryCount) this.retryCount = 0;
+            this.retryCount++;
+            
+            if (this.retryCount <= 3) {
+                const backoff = Math.pow(2, this.retryCount) * 5000; // 5s, 10s, 20s, 40s
+                this.log(`Retrying in ${backoff/1000}s... (attempt ${this.retryCount}/3)`);
+                
+                setTimeout(() => {
+                    this.connect().catch(err => {
+                        this.log(`Retry failed: ${err?.message || err}`);
+                    });
+                }, backoff);
+            } else {
+                this.log('Max retries reached. Please check server settings.');
+            }
         });
 
         this.bot.on('kicked', (reason, loggedIn) => {
