@@ -25,11 +25,12 @@ class MinecraftBot {
                 throw new Error('Missing config: server.host, server.port, bot.username');
             }
 
-            // Add random delay to seem more human
-            const delay = Math.random() * 8000 + 4000; // 4-12 seconds
+            // Human-like connection pattern
+            const delay = Math.random() * 12000 + 8000; // 8-20 seconds
             this.log(`Waiting ${Math.round(delay/1000)}s before connecting...`);
             await new Promise(resolve => setTimeout(resolve, delay));
 
+            // More human-like bot options
             this.bot = mineflayer.createBot({
                 host,
                 port,
@@ -38,12 +39,18 @@ class MinecraftBot {
                 auth: cfg?.bot?.auth || 'offline',
                 version: cfg?.server?.version || false,
                 hideErrors: false,
-                connectTimeout: 30000, // 30 second timeout
-                checkTimeoutInterval: 45*1000,
-                closeTimeout: 90*1000,
+                connectTimeout: 45000,
+                checkTimeoutInterval: 60*1000,
+                closeTimeout: 120*1000,
                 keepAlive: true,
                 noPingResponse: false,
-                closeOnError: false
+                closeOnError: false,
+                // Anti-detection settings
+                sessionServer: 'https://sessionserver.mojang.com',
+                profilesFolder: './profiles',
+                // Simulate real client
+                brand: 'vanilla',
+                chatLengthLimit: 256
             });
 
             this.setupEventListeners();
@@ -74,6 +81,18 @@ class MinecraftBot {
 
         this.bot.on('spawn', () => {
             this.log('Bot spawned in world');
+            
+            // Advanced human simulation
+            this.simulateHumanBehavior();
+        });
+
+        this.bot.on('login', () => {
+            this.log(`Bot connected as ${this.bot.username}`);
+            
+            // Simulate human delays
+            setTimeout(() => {
+                this.simulateInitialActions();
+            }, Math.random() * 10000 + 5000);
         });
 
         this.bot.on('death', () => {
@@ -91,6 +110,14 @@ class MinecraftBot {
         this.bot.on('end', (reason) => {
             this.log(`Bot disconnected. Reason: ${reason || 'unknown'}`);
             
+            // Stop retries if server is actively blocking
+            if (reason === 'socketClosed' || reason?.includes('ECONNRESET') || reason?.includes('EPIPE')) {
+                this.log('Server appears to be blocking automated connections.');
+                this.log('Stopping retry attempts to avoid further detection.');
+                this.retryCount = 999; // Stop further retries
+                return;
+            }
+            
             // Exponential backoff retry
             if (!this.retryCount) this.retryCount = 0;
             this.retryCount++;
@@ -105,7 +132,7 @@ class MinecraftBot {
                     });
                 }, backoff);
             } else {
-                this.log('Max retries reached. Please check server settings.');
+                this.log('Max retries reached. Server may be blocking automated connections.');
             }
         });
 
@@ -232,15 +259,90 @@ class MinecraftBot {
         }
     }
 
-    lookAtPlayer(playerName) {
-        const player = this.bot.players[playerName];
-        if (!player) {
-            this.chat(`Player ${playerName} not found`);
-            return;
-        }
+    lookAround() {
+        if (!this.bot || !this.bot.entity) return;
+        
+        const yaw = Math.random() * Math.PI * 2;
+        const pitch = (Math.random() - 0.5) * Math.PI;
+        
+        this.bot.look(yaw, pitch, false);
+    }
 
-        this.bot.lookAt(player.entity.position);
-        this.chat(`Looking at ${playerName}`);
+    simulateHumanBehavior() {
+        // Random human-like actions
+        const actions = [
+            () => this.lookAround(),
+            () => this.randomMovement(),
+            () => this.idleBehavior(),
+            () => this.checkInventory()
+        ];
+        
+        const randomAction = actions[Math.floor(Math.random() * actions.length)];
+        randomAction();
+        
+        // Schedule next action with random interval
+        const nextInterval = Math.random() * 15000 + 5000; // 5-20 seconds
+        setTimeout(() => {
+            if (this.bot && this.bot.player) {
+                this.simulateHumanBehavior();
+            }
+        }, nextInterval);
+    }
+
+    simulateInitialActions() {
+        // Human-like initial actions after joining
+        setTimeout(() => {
+            this.lookAround();
+        }, Math.random() * 3000 + 2000);
+        
+        setTimeout(() => {
+            this.chat('/list');
+        }, Math.random() * 8000 + 5000);
+        
+        setTimeout(() => {
+            this.log('Account is now active and ready for commands');
+        }, Math.random() * 12000 + 8000);
+    }
+
+    randomMovement() {
+        if (!this.bot || !this.bot.entity) return;
+        
+        const movements = [
+            () => {
+                this.bot.setControlState('forward', true);
+                setTimeout(() => this.bot.setControlState('forward', false), Math.random() * 2000 + 500);
+            },
+            () => {
+                this.bot.setControlState('back', true);
+                setTimeout(() => this.bot.setControlState('back', false), Math.random() * 1500 + 300);
+            },
+            () => {
+                this.bot.setControlState('left', true);
+                setTimeout(() => this.bot.setControlState('left', false), Math.random() * 1000 + 200);
+            },
+            () => {
+                this.bot.setControlState('right', true);
+                setTimeout(() => this.bot.setControlState('right', false), Math.random() * 1000 + 200);
+            },
+            () => this.jump()
+        ];
+        
+        const action = movements[Math.floor(Math.random() * movements.length)];
+        action();
+    }
+
+    idleBehavior() {
+        // Simulate idle human behavior
+        if (Math.random() < 0.3) {
+            this.lookAround();
+        }
+    }
+
+    checkInventory() {
+        // Simulate checking inventory (human-like)
+        if (this.bot.inventory) {
+            this.log('Checking inventory...');
+        }
     }
 
     chat(message) {
