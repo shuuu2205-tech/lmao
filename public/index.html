@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minecraft Bot Control Panel</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="header">
+      <div>
+        <h1>Minecraft Bot</h1>
+        <div class="sub">Control panel</div>
+      </div>
+      <div class="status" id="statusPill">Disconnected</div>
+    </header>
+
+    <section class="card">
+      <div class="row">
+        <div class="field">
+          <label>Host</label>
+          <input id="host" placeholder="mcfleet.net" />
+        </div>
+        <div class="field">
+          <label>Port</label>
+          <input id="port" placeholder="25565" />
+        </div>
+        <div class="field">
+          <label>Version (optional)</label>
+          <input id="version" placeholder="1.20.1 or empty" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Username</label>
+          <input id="username" placeholder="BotPlayer" />
+        </div>
+        <div class="field">
+          <label>Auth</label>
+          <select id="auth">
+            <option value="offline">offline</option>
+            <option value="microsoft">microsoft</option>
+            <option value="mojang">mojang</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Password (only if auth != offline)</label>
+          <input id="password" type="password" placeholder="" />
+        </div>
+      </div>
+
+      <div class="row actions">
+        <button class="btn primary" id="startBtn">Start Bot</button>
+        <button class="btn" id="stopBtn" disabled>Stop Bot</button>
+        <button class="btn" id="refreshBtn">Refresh Status</button>
+      </div>
+
+      <div class="hint">
+        If you set <code>BOT_CONTROL_TOKEN</code> on the server, add it here.
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Control Token</label>
+          <input id="token" type="password" placeholder="optional" />
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="card">
+        <h2>Chat</h2>
+        <div class="row">
+          <div class="field grow">
+            <label>Message</label>
+            <input id="chatMsg" placeholder="Hello" />
+          </div>
+          <button class="btn" id="chatBtn" disabled>Send</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Command</h2>
+        <div class="row">
+          <div class="field grow">
+            <label>Command (without /)</label>
+            <input id="cmdMsg" placeholder="spawn" />
+          </div>
+          <button class="btn" id="cmdBtn" disabled>Run</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="card">
+      <h2>Logs</h2>
+      <pre id="logs" class="logs"></pre>
+    </section>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

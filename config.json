@@ -1,0 +1,19 @@
+{
+  "server": {
+    "host": "localhost",
+    "port": 25565,
+    "version": false
+  },
+  "bot": {
+    "username": "TestBot",
+    "password": "",
+    "auth": "offline"
+  },
+  "proxy": {
+    "enabled": false,
+    "host": "",
+    "port": 0,
+    "username": "",
+    "password": ""
+  }
+}

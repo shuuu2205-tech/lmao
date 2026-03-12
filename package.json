@@ -1,0 +1,22 @@
+{
+  "name": "minecraft-bot",
+  "version": "1.0.0",
+  "description": "A Minecraft bot that can connect to servers, move, chat, and execute commands",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "bot": "node bot.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1",
+    "mineflayer": "^4.20.1"
+  },
+  "keywords": [
+    "minecraft",
+    "bot",
+    "mineflayer"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: minecraft-bot-panel
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BOT_CONTROL_TOKEN
+        generateValue: true
+        sync: false
